@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-
 import '../database/create_db.dart';
 import '../service/userService.dart';
 import '../widgets/custom_textfield.dart';
@@ -14,10 +12,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  var _userService = userService();
+  final _userService = userService();
   TextEditingController userName = TextEditingController();
   TextEditingController password = TextEditingController();
   bool isFormValid = false;
+  String? error;
 
   logionFunction() async {
     String inputUserName = userName.text;
@@ -25,19 +24,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
     bool userExists = await _userService.doesUserExist(inputUserName);
     if (userExists) {
-      print('Username already exists. Please use a different username.');
     } else {
       var login = Login(
         userName: inputUserName,
         password: inputPassword,
       );
       var result = await _userService.saveUserDetails(login);
-      print('User saved: $result');
-      print('New user registered successfully.');
+      // print('User saved: $result');
+      // print('New user registered successfully.');
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => HomePage(
+              builder: (context) =>
+                  HomePage(
                     userName: inputUserName,
                   )));
     }
@@ -49,35 +48,42 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => HomePage(
+              builder: (context) =>
+                  HomePage(
                     userName: inputUserName,
                   )));
     } else {
-      print('Password is incorrect. Please try again.');
+      setState(() {
+        error = 'Password is incorrect. Please try again.';
+      });
     }
   }
-@override
+
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
     userName.addListener(_validateForm);
     password.addListener(_validateForm);
   }
+
   void _validateForm() {
     setState(() {
       isFormValid = userName.text.isNotEmpty && password.text.isNotEmpty;
+      error = null;
     });
   }
+
   @override
   void dispose() {
     userName.dispose();
     password.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Scaffold is placed within MaterialApp
       body: Container(
         color: Colors.white,
         padding: EdgeInsets.all(16.0),
@@ -87,12 +93,37 @@ class _LoginScreenState extends State<LoginScreen> {
             Expanded(
                 child: Image.asset('assets/images/login_image.jpg')),
             SizedBox(height: 20),
+            if (error != null) // Conditionally display error message
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  error!,
+                  style: TextStyle(color: Colors.red, fontSize: 16),
+                ),
+              ),
+            Text(
+              'Welcome Back',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Login to your account',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.blueGrey,
+              ),
+            ),
+            SizedBox(height: 20),
             CustomTextField(
               controller: userName,
               labelText: 'Email',
               prefixIcon: Icons.email,
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 20),
             CustomTextField(
               controller: password,
               labelText: 'Password',
@@ -102,30 +133,35 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 20),
             Container(
               width: 200,
-              child:ElevatedButton(
-                onPressed: isFormValid ? () { logionFunction(); } : null,
+              child: ElevatedButton(
+                onPressed: isFormValid ? () {
+                  logionFunction();
+                } : null,
                 child: Text(
                   'Login',
-                  style: TextStyle(color: isFormValid ? Colors.white : Colors.grey),
+                  style: TextStyle(
+                      color: isFormValid ? Colors.white : Colors.grey),
                 ),
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: isFormValid ? Colors.blueAccent : Colors.grey,
-                  backgroundColor: isFormValid ? Colors.blueAccent : Colors.grey[300],
+                  foregroundColor: isFormValid ? Colors.blueAccent : Colors
+                      .grey,
+                  backgroundColor: isFormValid ? Colors.blueAccent : Colors
+                      .grey[300],
                   padding: EdgeInsets.symmetric(vertical: 15.0),
                   textStyle: TextStyle(fontSize: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
-                    side: BorderSide(color: isFormValid ? Colors.blueAccent : Colors.grey),
+                    side: BorderSide(
+                        color: isFormValid ? Colors.blueAccent : Colors.grey),
                   ),
                 ),
               ),
             ),
-
             SizedBox(height: 10),
-
           ],
         ),
       ),
     );
   }
 }
+
