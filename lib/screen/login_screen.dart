@@ -30,8 +30,8 @@ class _LoginScreenState extends State<LoginScreen> {
         password: inputPassword,
       );
       var result = await _userService.saveUserDetails(login);
-      // print('User saved: $result');
-      // print('New user registered successfully.');
+      print('User saved: $result');
+      print('New user registered successfully.');
       Navigator.push(
           context,
           MaterialPageRoute(
